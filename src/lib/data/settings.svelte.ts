@@ -426,16 +426,19 @@ export const categorySettings = $state({
 		);
 	},
 	setDisabled(newDisabled: string[]) {
+		console.log('[CategorySettings] setDisabled called with:', newDisabled);
 		categoriesState.disabled = newDisabled;
 		settings.disabledCategories.currentValue = newDisabled;
-		// Update enabled to be all categories not in disabled while maintaining order
-		const allCategoryIds = categoriesState.allCategories.map((cat) => cat.id);
+		// Update enabled to remove newly disabled elements
 		const newEnabled = categoriesState.enabled.filter((cat) => !newDisabled.includes(cat))
-		// Add all categories not found in disabled or newEnabled
-		categoriesState.enabled = newEnabled.concat(
-		  allCategoryIds.filter((cat) => !newDisabled.includes(cat) && !newEnabled.includes(cat))
-		)
+		categoriesState.enabled = newEnabled
+		// Add all categories not in enabled to disabled
+		const allCategoryIds = categoriesState.allCategories.map((cat) => cat.id);
+		categoriesState.disabled = allCategoryIds.filter(
+		  (categoryId) => !newEnabled.includes(categoryId),
+		);
 		settings.enabledCategories.currentValue = categoriesState.enabled;
+		settings.disabledCategories.currentValue = categoriesState.disabled;
 		settings.enabledCategories.save();
 		settings.disabledCategories.save();
 	},
